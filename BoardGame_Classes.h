@@ -13,8 +13,6 @@ protected:
     int n_moves = 0;
 
 public:
-
-
     /// Return true if move is valid and put it on the board
     /// within board boundaries in an empty cell
     /// Return false otherwise
@@ -38,7 +36,7 @@ class Player {
 protected:
     string name;
     T symbol;
-    Board<T>* boardPtr;  // Pointer to the board
+    Board<T>* boardPtr; // Pointer to the board
 public:
     /// Two constructors to initiate players
     /// Give the player a symbol to use in playing
@@ -60,6 +58,7 @@ template <typename T>
 class RandomPlayer : public Player<T> {
 protected:
     int dimension;
+
 public:
     // Take a symbol and pass it to the parent
     RandomPlayer(T symbol);
@@ -72,12 +71,12 @@ class GameManager {
 private:
     Board<T>* boardPtr;
     Player<T>* players[2];
+
 public:
     GameManager(Board<T>*, Player<T>* playerPtr[2]);
 
     void run();
 };
-
 
 //--------------------------------------- IMPLEMENTATION
 
@@ -85,20 +84,22 @@ public:
 using namespace std;
 
 template <typename T>
-GameManager<T>::GameManager(Board<T>* bPtr, Player<T>* playerPtr[2]) {
+GameManager<T>::GameManager(Board<T>* bPtr, Player<T>* playerPtr[2])
+{
     boardPtr = bPtr;
     players[0] = playerPtr[0];
     players[1] = playerPtr[1];
 }
 
 template <typename T>
-void GameManager<T>::run() {
+void GameManager<T>::run()
+{
     int x, y;
 
     boardPtr->display_board();
 
     while (!boardPtr->game_is_over()) {
-        for (int i : {0, 1}) {
+        for (int i : { 0, 1 }) {
             players[i]->getmove(x, y);
             while (!boardPtr->update_board(x, y, players[i]->getsymbol())) {
                 players[i]->getmove(x, y);
@@ -116,62 +117,43 @@ void GameManager<T>::run() {
     }
 }
 
-
 using namespace std;
 // Constructor for Player with a name and symbol
 template <typename T>
-Player<T>::Player(std::string n, T symbol) {
+Player<T>::Player(std::string n, T symbol)
+{
     this->name = n;
     this->symbol = symbol;
 }
 
 // Constructor for Player with only a symbol (e.g., for computer players)
 template <typename T>
-Player<T>::Player(T symbol) {
+Player<T>::Player(T symbol)
+{
     this->name = "Computer";
     this->symbol = symbol;
 }
 
 // Constructor for RandomPlayer, passing the symbol to the parent Player class
 template <typename T>
-RandomPlayer<T>::RandomPlayer(T symbol) : Player<T>(symbol) {}
+RandomPlayer<T>::RandomPlayer(T symbol)
+    : Player<T>(symbol)
+{
+}
 
 // Getter for player's name
 template <typename T>
-std::string Player<T>::getname() {
-    return this->name;
-}
+std::string Player<T>::getname() { return this->name; }
 
 // Getter for player's symbol
 template <typename T>
-T Player<T>::getsymbol() {
-    return this->symbol;
-}
+T Player<T>::getsymbol() { return this->symbol; }
 
 // Method to set the board pointer in the Player class
 template <typename T>
-void Player<T>::setBoard(Board<T>* b) {
+void Player<T>::setBoard(Board<T>* b)
+{
     this->boardPtr = b;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif //_BOARDGAME_CLASSES_H
-

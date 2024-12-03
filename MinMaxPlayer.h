@@ -16,26 +16,23 @@ private:
     std::pair<int, int> getBestMove();
 };
 
-
-
-
-
-
-
 //--------------------------------------- IMPLEMENTATION
 
-#include <limits>
 #include <algorithm> // For std::max and std::min
+#include <limits>
 using namespace std;
 // Constructor for the templated class
 template <typename T>
-X_O_MinMax_Player<T>::X_O_MinMax_Player(T symbol) : Player<T>(symbol) {
+X_O_MinMax_Player<T>::X_O_MinMax_Player(T symbol)
+    : Player<T>(symbol)
+{
     this->name = "AI Player";
 }
 
 // Method to get the best move for the player
 template <typename T>
-void X_O_MinMax_Player<T>::getmove(int& x, int& y) {
+void X_O_MinMax_Player<T>::getmove(int& x, int& y)
+{
     std::pair<int, int> bestMove = getBestMove();
     x = bestMove.first;
     y = bestMove.second;
@@ -43,14 +40,16 @@ void X_O_MinMax_Player<T>::getmove(int& x, int& y) {
 
 // Minimax algorithm to evaluate the board
 template <typename T>
-int X_O_MinMax_Player<T>::calculateMinMax(T s, bool isMaximizing) {
+int X_O_MinMax_Player<T>::calculateMinMax(T s, bool isMaximizing)
+{
     if (this->boardPtr->is_win()) {
         return isMaximizing ? -1 : 1;
     } else if (this->boardPtr->is_draw()) {
         return 0;
     }
 
-    int bestValue = isMaximizing ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+    int bestValue = isMaximizing ? std::numeric_limits<int>::min()
+                                 : std::numeric_limits<int>::max();
     T opponentSymbol = (s == 'X') ? 'O' : 'X';
 
     for (int i = 0; i < 3; ++i) {
@@ -73,9 +72,10 @@ int X_O_MinMax_Player<T>::calculateMinMax(T s, bool isMaximizing) {
 
 // Find the best move using the minimax algorithm
 template <typename T>
-std::pair<int, int> X_O_MinMax_Player<T>::getBestMove() {
+std::pair<int, int> X_O_MinMax_Player<T>::getBestMove()
+{
     int bestValue = std::numeric_limits<int>::min();
-    std::pair<int, int> bestMove = {-1, -1};
+    std::pair<int, int> bestMove = { -1, -1 };
     T opponentSymbol = (this->symbol == 'X') ? 'O' : 'X';
 
     // First, check if we can win in the next move
@@ -84,7 +84,7 @@ std::pair<int, int> X_O_MinMax_Player<T>::getBestMove() {
             if (this->boardPtr->update_board(i, j, this->symbol)) {
                 if (this->boardPtr->is_win()) {
                     this->boardPtr->update_board(i, j, 0); // Undo move
-                    return {i, j}; // Winning move found
+                    return { i, j }; // Winning move found
                 }
                 this->boardPtr->update_board(i, j, 0); // Undo move
             }
@@ -97,7 +97,7 @@ std::pair<int, int> X_O_MinMax_Player<T>::getBestMove() {
             if (this->boardPtr->update_board(i, j, opponentSymbol)) {
                 if (this->boardPtr->is_win()) {
                     this->boardPtr->update_board(i, j, 0); // Undo move
-                    return {i, j}; // Block opponent's winning move
+                    return { i, j }; // Block opponent's winning move
                 }
                 this->boardPtr->update_board(i, j, 0); // Undo move
             }
@@ -112,7 +112,7 @@ std::pair<int, int> X_O_MinMax_Player<T>::getBestMove() {
                 this->boardPtr->update_board(i, j, 0); // Undo move
 
                 if (moveValue > bestValue) {
-                    bestMove = {i, j};
+                    bestMove = { i, j };
                     bestValue = moveValue;
                 }
             }
@@ -121,20 +121,5 @@ std::pair<int, int> X_O_MinMax_Player<T>::getBestMove() {
 
     return bestMove;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif //_MINMAXPLAYER_H
