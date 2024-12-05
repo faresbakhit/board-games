@@ -1,5 +1,5 @@
-#ifndef _MISERETICTACTOE_H
-#define _MISERETICTACTOE_H
+#ifndef MISERETICTACTOE_H
+#define MISERETICTACTOE_H
 
 #include "BoardGame_Classes.h"
 
@@ -51,7 +51,8 @@ template <typename T>
 bool MisereTicTacToe_Board<T>::update_board(int x, int y, T mark)
 {
     // Only update if move is valid
-    if (!(x < 0 || x >= this->rows || y < 0 || y >= this->columns) && (this->board[x][y] == 0 || mark == 0)) {
+    if (!(x < 0 || x >= this->rows || y < 0 || y >= this->columns)
+        && (this->board[x][y] == 0 || mark == 0)) {
         if (mark == 0) {
             this->n_moves--;
             this->board[x][y] = 0;
@@ -69,13 +70,15 @@ bool MisereTicTacToe_Board<T>::update_board(int x, int y, T mark)
 template <typename T>
 void MisereTicTacToe_Board<T>::display_board()
 {
+    cout << "\n-------------------------------";
     for (int i = 0; i < this->rows; i++) {
         cout << "\n| ";
         for (int j = 0; j < this->columns; j++) {
-            cout << "(" << i << "," << j << ")";
-            cout << setw(2) << this->board[i][j] << " |";
+            cout << "(" << i << "," << j << ") ";
+            cout << (this->board[i][j] ? this->board[i][j] : ' ');
+            cout << " | ";
         }
-        cout << "\n-----------------------------";
+        cout << "\n-------------------------------";
     }
     cout << endl;
 }
@@ -89,14 +92,23 @@ bool MisereTicTacToe_Board<T>::is_win()
 
     // Check rows and columns
     for (int i = 0; i < this->rows; i++) {
-        if ((this->board[i][0] == this->board[i][1] && this->board[i][1] == this->board[i][2] && this->board[i][0] != 0) || (this->board[0][i] == this->board[1][i] && this->board[1][i] == this->board[2][i] && this->board[0][i] != 0)) {
+        if ((this->board[i][0] == this->board[i][1]
+                && this->board[i][1] == this->board[i][2]
+                && this->board[i][0] != 0)
+            || (this->board[0][i] == this->board[1][i]
+                && this->board[1][i] == this->board[2][i]
+                && this->board[0][i] != 0)) {
             previousPlayWon = true;
             return false;
         }
     }
 
     // Check diagonals
-    if ((this->board[0][0] == this->board[1][1] && this->board[1][1] == this->board[2][2] && this->board[0][0] != 0) || (this->board[0][2] == this->board[1][1] && this->board[1][1] == this->board[2][0] && this->board[0][2] != 0)) {
+    if ((this->board[0][0] == this->board[1][1]
+            && this->board[1][1] == this->board[2][2] && this->board[0][0] != 0)
+        || (this->board[0][2] == this->board[1][1]
+            && this->board[1][1] == this->board[2][0]
+            && this->board[0][2] != 0)) {
         previousPlayWon = true;
         return false;
     }
@@ -133,4 +145,4 @@ void MisereTicTacToe_Player<T>::getmove(int& x, int& y)
     cin >> x >> y;
 }
 
-#endif // _MISERETICTACTOE_H
+#endif // MISERETICTACTOE_H

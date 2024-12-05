@@ -1,8 +1,8 @@
-#include "3x3X_O.h"
 #include "BoardGame_Classes.h"
-#include "MinMaxPlayer.h"
 #include "MisereTicTacToe.h"
+#include "TicTacToe4x4.h"
 #include "TicTacToe5x5.h"
+#include "XO.h"
 #include <iostream>
 
 using namespace std;
@@ -12,18 +12,18 @@ int main()
     int choice, gameChoice;
     Player<char>* players[2];
     Board<char>* board;
-    string playerXName, player2Name;
 
     cout << "Welcome to board-games.\n";
-    cout << "Enter board game type:\n";
     cout << "0. 3x3 XO\n";
     cout << "3. 5x5 Tic Tac Toe\n";
     cout << "6. Misere Tic Tac Toe\n";
+    cout << "7. 4x4 Tic-Tac-Toe\n";
+    cout << "Enter board game type: ";
     cin >> gameChoice;
 
     switch (gameChoice) {
     case 0:
-        board = new X_O_Board<char>();
+        board = new XO_Board<char>();
         break;
     case 3:
         board = new TicTacToe5x5_Board<char>();
@@ -31,106 +31,94 @@ int main()
     case 6:
         board = new MisereTicTacToe_Board<char>();
         break;
+    case 7:
+        board = new TicTacToe4x4_Board<char>();
+        break;
     default:
         cout << "Invalid choice for board game type. Exiting the game.\n";
         return 1;
     }
 
-    // Set up player 1
-    cout << "Enter Player X name: ";
-    cin >> playerXName;
-    cout << "Choose Player X type:\n";
+    string playerName[2];
+    char playerSymbol[2] = { 'X', 'O' };
+    int playerType[2];
+
+    cout << "Enter Player 1 name: ";
+    cin >> playerName[0];
     cout << "1. Human\n";
     cout << "2. Random Computer\n";
     cout << "3. Smart Computer (AI)\n";
-    cin >> choice;
+    cout << "Choose Player 1 type: ";
+    cin >> playerType[0];
 
-    switch (gameChoice) {
-    case 0:
-        switch (choice) {
-        case 1:
-            players[0] = new X_O_Player<char>(playerXName, 'X');
-            break;
-        case 2:
-            players[0] = new X_O_Random_Player<char>('X');
-            break;
-        case 3:
-            players[0] = new X_O_MinMax_Player<char>('X');
-            players[0]->setBoard(board);
-            break;
-        default:
-            cout << "Invalid choice for Player 1. Exiting the game.\n";
-            return 1;
-        }
-        break;
-    case 3:
-        switch (choice) {
-        case 1:
-            players[0] = new TicTacToe5x5_Player<char>(playerXName, 'X');
-            break;
-        default:
-            cout << "Invalid choice for Player 1. Exiting the game.\n";
-            return 1;
-        }
-        break;
-    case 6:
-        switch (choice) {
-        case 1:
-            players[0] = new MisereTicTacToe_Player<char>(playerXName, 'X');
-            break;
-        default:
-            cout << "Invalid choice for Player 1. Exiting the game.\n";
-            return 1;
-        }
-        break;
-    }
-    // Set up player 2
     cout << "Enter Player 2 name: ";
-    cin >> player2Name;
-    cout << "Choose Player 2 type:\n";
+    cin >> playerName[1];
     cout << "1. Human\n";
     cout << "2. Random Computer\n";
     cout << "3. Smart Computer (AI)\n";
-    cin >> choice;
+    cout << "Choose Player 2 type: ";
+    cin >> playerType[1];
 
-    switch (gameChoice) {
-    case 0:
-        switch (choice) {
-        case 1:
-            players[1] = new X_O_Player<char>(player2Name, 'O');
-            break;
-        case 2:
-            players[1] = new X_O_Random_Player<char>('O');
+    for (size_t playerIndex : { 0, 1 }) {
+        switch (gameChoice) {
+        case 0:
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new XO_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            case 2:
+                players[playerIndex]
+                    = new XO_Random_Player<char>(playerSymbol[playerIndex]);
+                break;
+            case 3:
+                players[playerIndex]
+                    = new XO_MinMax_Player<char>(playerSymbol[playerIndex]);
+                players[playerIndex]->setBoard(board);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
             break;
         case 3:
-            players[1] = new X_O_MinMax_Player<char>('O');
-            players[1]->setBoard(board);
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new TicTacToe5x5_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
             break;
-        default:
-            cout << "Invalid choice for Player 2. Exiting the game.\n";
-            return 1;
-        }
-        break;
-    case 3:
-        switch (choice) {
-        case 1:
-            players[1] = new TicTacToe5x5_Player<char>(player2Name, 'O');
+        case 6:
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new MisereTicTacToe_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
             break;
-        default:
-            cout << "Invalid choice for Player 2. Exiting the game.\n";
-            return 1;
-        }
-        break;
-    case 6:
-        switch (choice) {
-        case 1:
-            players[1] = new MisereTicTacToe_Player<char>(player2Name, 'O');
+        case 7:
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new TicTacToe4x4_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
             break;
-        default:
-            cout << "Invalid choice for Player 2. Exiting the game.\n";
-            return 1;
         }
-        break;
     }
 
     /*

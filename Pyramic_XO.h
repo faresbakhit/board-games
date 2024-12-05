@@ -1,18 +1,18 @@
-#ifndef _PYRAMID_X_O_H
-#define _PYRAMID_X_O_H
+#ifndef PYRAMIC_XO_H
+#define PYRAMIC_XO_H
 
 #include "BoardGame_Classes.h"
-#include <iostream>
+#include <cctype> // for toupper()
 #include <iomanip>
-#include <cctype>  // for toupper()
+#include <iostream>
 
 using namespace std;
 
-//Pyramid Board Class
+// Pyramid Board Class
 template <typename T>
-class Pyramid_X_O_Board : public Board<T> {
+class Pyramic_XO_Board : public Board<T> {
 public:
-    Pyramid_X_O_Board();
+    Pyramic_XO_Board();
     bool update_board(int x, int y, T symbol) override;
     void display_board() override;
     bool is_win() override;
@@ -20,26 +20,27 @@ public:
     bool game_is_over() override;
 };
 
-//Pyramid Player Class
+// Pyramid Player Class
 template <typename T>
-class X_O_Pyramid_Player : public Player<T> {
+class Pyramic_XO_Player : public Player<T> {
 public:
-    X_O_Pyramid_Player(string name, T symbol);
+    Pyramic_XO_Player(string name, T symbol);
     void getmove(int& x, int& y) override;
 };
 
-//Random Player Class
+// Random Player Class
 template <typename T>
-class X_O_Random_Player : public RandomPlayer<T> {
+class Pyramic_XO_Random_Player : public RandomPlayer<T> {
 public:
-    X_O_Random_Player(T symbol);
+    Pyramic_XO_Random_Player(T symbol);
     void getmove(int& x, int& y) override;
 };
 
 // ____Implementation of Pyramid_X_O____
 
 template <typename T>
-Pyramid_X_O_Board<T>::Pyramid_X_O_Board() {
+Pyramic_XO_Board<T>::Pyramic_XO_Board()
+{
     this->rows = 3;
     this->columns = 5;
     this->board = new char*[this->rows];
@@ -62,8 +63,9 @@ Pyramid_X_O_Board<T>::Pyramid_X_O_Board() {
 }
 
 template <typename T>
-bool Pyramid_X_O_Board<T>::update_board(int x, int y, T mark) {
-    //Check if (x,y) is within the board dimensions
+bool Pyramic_XO_Board<T>::update_board(int x, int y, T mark)
+{
+    // Check if (x,y) is within the board dimensions
     if (x < 0 || x >= this->rows || y < 0 || y >= this->columns) {
         return false;
     }
@@ -79,14 +81,15 @@ bool Pyramid_X_O_Board<T>::update_board(int x, int y, T mark) {
         return true;
     }
 
-    return false; 
+    return false;
 }
 
 template <typename T>
-void Pyramid_X_O_Board<T>::display_board() {
+void Pyramic_XO_Board<T>::display_board()
+{
     for (int i = 0; i < this->rows; i++) {
         int padding = (this->columns - (2 * i + 1)) / 2;
-        cout << string(padding * 2, ' '); 
+        cout << string(padding * 2, ' ');
 
         for (int j = 0; j < this->columns; j++) {
             if (this->board[i][j] != '\0') {
@@ -97,14 +100,14 @@ void Pyramid_X_O_Board<T>::display_board() {
     }
 }
 
-
 template <typename T>
-bool Pyramid_X_O_Board<T>::is_win() {
-    //Check Columns
+bool Pyramic_XO_Board<T>::is_win()
+{
+    // Check Columns
     if ((this->board[0][2] == this->board[1][2] && this->board[1][2] == this->board[2][2] && this->board[0][2] != '.')) {
         return true;
     }
-    //Check Rows
+    // Check Rows
     for (int i = 0; i < this->rows; i++) {
         int start = (this->columns - (2 * i + 1)) / 2;
         int end = start + (2 * i + 1);
@@ -114,7 +117,7 @@ bool Pyramid_X_O_Board<T>::is_win() {
             }
         }
     }
-    //Check Diagonals
+    // Check Diagonals
     if (this->board[0][2] != '.' && this->board[0][2] == this->board[1][1] && this->board[1][1] == this->board[2][0]) {
         return true;
     }
@@ -125,20 +128,26 @@ bool Pyramid_X_O_Board<T>::is_win() {
 }
 
 template <typename T>
-bool Pyramid_X_O_Board<T>::is_draw() {
+bool Pyramic_XO_Board<T>::is_draw()
+{
     return (this->n_moves == 9 && !is_win());
 }
 
 template <typename T>
-bool Pyramid_X_O_Board<T>::game_is_over() {
+bool Pyramic_XO_Board<T>::game_is_over()
+{
     return is_win() || is_draw();
 }
 
 template <typename T>
-X_O_Pyramid_Player<T>::X_O_Pyramid_Player(string name, T symbol) : Player<T>(name, symbol) {}
+Pyramic_XO_Player<T>::Pyramic_XO_Player(string name, T symbol)
+    : Player<T>(name, symbol)
+{
+}
 
 template <typename T>
-void X_O_Pyramid_Player<T>::getmove(int& x, int& y) {
+void Pyramic_XO_Player<T>::getmove(int& x, int& y)
+{
     bool valid = false;
     do {
         cout << "Enter your move (row and column, e.g., 1 3): ";
@@ -159,20 +168,21 @@ void X_O_Pyramid_Player<T>::getmove(int& x, int& y) {
     } while (!valid);
 }
 
-
 // Constructor for X_O_Random_Player
 template <typename T>
-X_O_Random_Player<T>::X_O_Random_Player(T symbol) : RandomPlayer<T>(symbol) {
+Pyramic_XO_Random_Player<T>::Pyramic_XO_Random_Player(T symbol)
+    : RandomPlayer<T>(symbol)
+{
     this->dimension = 3;
     this->name = "Random Computer Player";
-    srand(static_cast<unsigned int>(time(0)));  // Seed the random number generator
+    srand(static_cast<unsigned int>(time(0))); // Seed the random number generator
 }
 
 template <typename T>
-void X_O_Random_Player<T>::getmove(int& x, int& y) {
-    x = rand() % this->dimension;  // Random number between 0 and 2
+void Pyramic_XO_Random_Player<T>::getmove(int& x, int& y)
+{
+    x = rand() % this->dimension; // Random number between 0 and 2
     y = rand() % this->dimension;
 }
 
-
-#endif //_PYRAMID_X_O_H
+#endif // PYRAMIC_XO_H

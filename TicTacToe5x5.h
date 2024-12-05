@@ -1,5 +1,5 @@
-#ifndef _TICTACTOE5X5_H
-#define _TICTACTOE5X5_H
+#ifndef TICTACTOE5X5_H
+#define TICTACTOE5X5_H
 
 #include "BoardGame_Classes.h"
 
@@ -48,32 +48,43 @@ template <typename T>
 bool TicTacToe5x5_Board<T>::update_board(int x, int y, T mark)
 {
     // Only update if move is valid
-    if (!(x < 0 || x >= this->rows || y < 0 || y >= this->columns) && (this->board[x][y] == 0 || mark == 0)) {
-        if (mark == 0) {
-            if (this->board[x][y] != 0)
-                this->n_moves--;
-            this->board[x][y] = 0;
-        } else {
-            if (this->board[x][y] != mark)
-                this->n_moves++;
-            this->board[x][y] = toupper(mark);
-        }
-        return true;
+    if (x < 0 || x >= this->rows || y < 0 || y >= this->columns) {
+        // Out of bounds
+        return false;
     }
-    return false;
+
+    if (this->board[x][y] != 0) {
+        // Tokens may not jump over other tokens
+        return false;
+    }
+
+    if (this->board[x][y] != mark)
+        this->n_moves++;
+
+    this->board[x][y] = toupper(mark);
+
+    return true;
 }
 
 // Display the board and the pieces on it
 template <typename T>
 void TicTacToe5x5_Board<T>::display_board()
 {
+    cout << "\n-";
+    for (int i = 0; i < this->rows; i++) {
+        cout << "----------";
+    }
     for (int i = 0; i < this->rows; i++) {
         cout << "\n| ";
         for (int j = 0; j < this->columns; j++) {
-            cout << "(" << i << "," << j << ")";
-            cout << setw(2) << this->board[i][j] << " |";
+            cout << "(" << i << "," << j << ") ";
+            cout << (this->board[i][j] ? this->board[i][j] : ' ');
+            cout << " | ";
         }
-        cout << "\n-----------------------------";
+        cout << "\n-";
+        for (int i = 0; i < this->rows; i++) {
+            cout << "----------";
+        }
     }
     cout << endl;
 }
@@ -93,7 +104,9 @@ bool TicTacToe5x5_Board<T>::is_win()
     // Check horizontally, vertically, and diagonally
     for (int i = 0; i < 5; i++) {
         for (int j = 0; j < 5; j++) {
-            if (j <= 2 && (this->board[i][j] != 0) && (this->board[i][j] == this->board[i][j + 1]) && (this->board[i][j + 1] == this->board[i][j + 2])) {
+            if (j <= 2 && (this->board[i][j] != 0)
+                && (this->board[i][j] == this->board[i][j + 1])
+                && (this->board[i][j + 1] == this->board[i][j + 2])) {
                 if (xPlayer == 0)
                     xPlayer = this->board[i][j];
                 if (this->board[i][j] == xPlayer) {
@@ -110,7 +123,9 @@ bool TicTacToe5x5_Board<T>::is_win()
                           << "(" << i << ", " << j + 2 << ")\n";
             }
             // Vertically
-            if (i <= 2 && (this->board[i][j] != 0) && (this->board[i][j] == this->board[i + 1][j]) && (this->board[i + 1][j] == this->board[i + 2][j])) {
+            if (i <= 2 && (this->board[i][j] != 0)
+                && (this->board[i][j] == this->board[i + 1][j])
+                && (this->board[i + 1][j] == this->board[i + 2][j])) {
                 if (xPlayer == 0)
                     xPlayer = this->board[i][j];
                 if (this->board[i][j] == xPlayer) {
@@ -127,7 +142,9 @@ bool TicTacToe5x5_Board<T>::is_win()
                           << "(" << i + 2 << ", " << j << ")\n";
             }
             // Diagonally (Left)
-            if (i <= 2 && j >= 2 && (this->board[i][j] != 0) && (this->board[i][j] == this->board[i + 1][j - 1]) && (this->board[i + 1][j - 1] == this->board[i + 2][j - 2])) {
+            if (i <= 2 && j >= 2 && (this->board[i][j] != 0)
+                && (this->board[i][j] == this->board[i + 1][j - 1])
+                && (this->board[i + 1][j - 1] == this->board[i + 2][j - 2])) {
                 if (xPlayer == 0)
                     xPlayer = this->board[i][j];
                 if (this->board[i][j] == xPlayer) {
@@ -144,7 +161,9 @@ bool TicTacToe5x5_Board<T>::is_win()
                           << "(" << i + 2 << ", " << j - 2 << ")\n";
             }
             // Diagonally (Right)
-            if (i <= 2 && j <= 2 && (this->board[i][j] != 0) && (this->board[i][j] == this->board[i + 1][j + 1]) && (this->board[i + 1][j + 1] == this->board[i + 2][j + 2])) {
+            if (i <= 2 && j <= 2 && (this->board[i][j] != 0)
+                && (this->board[i][j] == this->board[i + 1][j + 1])
+                && (this->board[i + 1][j + 1] == this->board[i + 2][j + 2])) {
                 if (xPlayer == 0)
                     xPlayer = this->board[i][j];
                 if (this->board[i][j] == xPlayer) {
@@ -194,8 +213,8 @@ TicTacToe5x5_Player<T>::TicTacToe5x5_Player(string name, T symbol)
 template <typename T>
 void TicTacToe5x5_Player<T>::getmove(int& x, int& y)
 {
-    cout << "\nPlease enter your move x and y (0 to 4) separated by spaces: ";
+    cout << "\nEnter your move x and y (0 to 4) separated by spaces: ";
     cin >> x >> y;
 }
 
-#endif // _TICTACTOE5X5_H
+#endif // TICTACTOE5X5_H
