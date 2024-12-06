@@ -1,4 +1,5 @@
 #include "BoardGame_Classes.h"
+#include "Pyramic_XO.h"
 #include "MisereTicTacToe.h"
 #include "TicTacToe4x4.h"
 #include "TicTacToe5x5.h"
@@ -15,6 +16,7 @@ int main()
 
     cout << "Welcome to board-games.\n";
     cout << "0. 3x3 XO\n";
+    cout << "1. Pyramic Tic-Tac-Toe\n";
     cout << "3. 5x5 Tic Tac Toe\n";
     cout << "6. Misere Tic Tac Toe\n";
     cout << "7. 4x4 Tic-Tac-Toe\n";
@@ -24,6 +26,9 @@ int main()
     switch (gameChoice) {
     case 0:
         board = new XO_Board<char>();
+        break;
+    case 1:
+        board = new Pyramic_XO_Board<char>();
         break;
     case 3:
         board = new TicTacToe5x5_Board<char>();
@@ -75,6 +80,22 @@ int main()
                 players[playerIndex]
                     = new XO_MinMax_Player<char>(playerSymbol[playerIndex]);
                 players[playerIndex]->setBoard(board);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
+            break;
+        case 1:
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new Pyramic_XO_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            case 2:
+                players[playerIndex]
+                    = new Pyramic_XO_Random_Player<char>(playerSymbol[playerIndex]);
                 break;
             default:
                 cout << "Invalid choice for Player " << playerIndex

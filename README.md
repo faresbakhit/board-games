@@ -11,6 +11,28 @@ Games description is [_here_](misc/CS213-2023-2024-Assignment2-V4.0.pdf)
 |Fares|20230277|3 & 6|
 |*Team*| |7 & 8|
 
+## Graphical User Interface
+
+To build the project's GUI, make sure to have CMake installed locally.
+
+### Desktop
+
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+### Web
+
+```
+mkdir build
+cd build
+emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
+emmake make
+```
+
 ## Board Game Classes
 
 This C++ code defines a set of classes for implementing a generic board game. The code uses templates to allow for different board game types and player symbols.

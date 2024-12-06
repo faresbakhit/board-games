@@ -12,6 +12,9 @@ public:
     bool is_win();
     bool is_draw();
     bool game_is_over();
+    const T *const *const getboard() const {
+        return this->board;
+    };
 };
 
 template <typename T>
@@ -24,7 +27,6 @@ public:
 //--------------------------------------- IMPLEMENTATION
 
 #include <cctype> // for toupper()
-#include <iomanip>
 #include <iostream>
 
 using namespace std;
