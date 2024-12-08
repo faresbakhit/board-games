@@ -156,7 +156,11 @@ void NumericalTicTacToeRandomPlayer<T>::getmove(int& x, int& y) {
     x = rand() % 3;
     y = rand() % 3;
     T num;
-    num = (rand() % 9) + 1;
+    if (this->symbol == 1) {
+        num = (rand() % 5) * 2 + 1;
+    } else {
+        num = (rand() % 5) * 2 + 2;
+    }
     this->symbol = num;
 }
 
