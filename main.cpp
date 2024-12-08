@@ -2,7 +2,9 @@
 #include "Pyramic_XO.h"
 #include "MisereTicTacToe.h"
 #include "TicTacToe4x4.h"
+#include "FourInARow.h"
 #include "TicTacToe5x5.h"
+#include "NumericalTicTacToe.h"
 #include "XO.h"
 #include <iostream>
 
@@ -11,13 +13,17 @@ using namespace std;
 int main()
 {
     int choice, gameChoice;
-    Player<char>* players[2];
-    Board<char>* board;
+    Player<char> *players[2];
+    Player<int> *numPlayers[2];
+    Board<char> *board;
+    Board<int> *numBoard;
 
     cout << "Welcome to board-games.\n";
     cout << "0. 3x3 XO\n";
     cout << "1. Pyramic Tic-Tac-Toe\n";
+    cout << "2. Four In Row\n";
     cout << "3. 5x5 Tic Tac Toe\n";
+    cout << "5. Numerical Tic Tac Toe\n";
     cout << "6. Misere Tic Tac Toe\n";
     cout << "7. 4x4 Tic-Tac-Toe\n";
     cout << "Enter board game type: ";
@@ -30,8 +36,14 @@ int main()
     case 1:
         board = new Pyramic_XO_Board<char>();
         break;
+    case 2:
+        board = new FourInARowBoard<char>();
+        break;
     case 3:
         board = new TicTacToe5x5_Board<char>();
+        break;
+    case 5:
+        numBoard = new NumericalTicTacToeBoard<int>();
         break;
     case 6:
         board = new MisereTicTacToe_Board<char>();
@@ -103,6 +115,21 @@ int main()
                 return 1;
             }
             break;
+        case 2:
+            switch (playerType[playerIndex]) {
+                case 1:
+                    players[playerIndex]
+                        = new FourInARowPlayer<char>(playerName[playerIndex], playerSymbol[playerIndex]);
+                    break;
+                case 2:
+                    players[playerIndex]
+                        = new FourInARowRandomPlayer<char>(playerSymbol[playerIndex]);
+                    break;
+                default:
+                    cout << "Invalid choice for Player 1. Exiting the game.\n";
+                    return 1;
+            }
+            break;
         case 3:
             switch (playerType[playerIndex]) {
             case 1:
@@ -113,6 +140,23 @@ int main()
                 cout << "Invalid choice for Player " << playerIndex
                      << ". Exiting the game.\n";
                 return 1;
+            }
+            break;
+        case 5:
+            switch(playerType[playerIndex]) {
+                case 1:
+                    numPlayers[playerIndex]
+                        = new NumericalTicTacToePlayer<int>(playerName[playerIndex],playerSymbol[playerIndex]);
+                    numPlayers[playerIndex]->setBoard(numBoard);
+                    break;
+                case 2:
+                    numPlayers[playerIndex]
+                        = new NumericalTicTacToeRandomPlayer<int>(playerSymbol[playerIndex]);
+                    numPlayers[playerIndex]->setBoard(numBoard);
+                    break;
+                default:
+                        cout << "Invalid choice for Player 2. Exiting the game.\n";
+                    return 1;
             }
             break;
         case 6:
@@ -142,26 +186,25 @@ int main()
         }
     }
 
-    /*
-    #define B(s) board->update_board(B_i, B_j++, s);
-    #define BR B_j = 0; B_i++;
-        int B_i = 0;
-        int B_j = 0;
-        B('O') B('X') B('O') B('X') B(0)   BR
-        B('X') B('O') B('O') B('O') B(0)   BR
-        B('O') B('X') B('X') B('X') B('O') BR
-        B('X') B('O') B('X') B('O') B('X') BR
-        B('O') B('X') B('O') B('X') B('O') BR
-    */
-
-    GameManager<char> game(board, players);
-    game.run();
-
-    // Clean up
-    delete board;
-    for (int i = 0; i < 2; ++i) {
-        delete players[i];
+    // Run the game
+    if (gameChoice == 5) {
+        GameManager<int> numGame(numBoard, numPlayers);
+        numGame.run();
+    } else {
+        GameManager<char> game(board, players);
+        game.run();
     }
 
+    // Cleanup
+    delete board;
+    delete numBoard;
+
+    for (int i = 0; i < 2; i++) {
+        if (gameChoice == 5) {
+            delete numPlayers[i];
+        } else {
+            delete players[i];
+        }
+    }
     return 0;
 }
