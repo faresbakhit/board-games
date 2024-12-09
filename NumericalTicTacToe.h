@@ -54,40 +54,51 @@ NumericalTicTacToeBoard<T>::NumericalTicTacToeBoard() {
 
 template <typename T>
 bool NumericalTicTacToeBoard<T>::update_board(int x, int y, T symbol) {
-    // Check if the position is valid and empty
+    // Check if the position is within bounds
     if (x < 0 || x >= this->rows || y < 0 || y >= this->columns) {
         cout << "Invalid move: Position (" << x << ", " << y << ") is out of bounds.\n";
         return false; // Invalid move
     }
+
+    // Check if the position is empty
     if (this->board[x][y] != 0) {
         cout << "Invalid move: Position (" << x << ", " << y << ") is already occupied.\n";
         return false; // Invalid move
     }
+
+    // Check if the number is in the valid range [1, 9]
+    if (symbol < 1 || symbol > 9) {
+        cout << "Invalid move: The number must be in the range [1, 9].\n";
+        return false; // Invalid number
+    }
+
     // Check if the number matches the turn (odd/even)
     if ((this->n_moves % 2 == 0 && symbol % 2 == 0)) {
         cout << "Invalid move: Player " << ((this->n_moves % 2 == 0) ? "1" : "2")
-                  << " must use an odd number in this turn.\n";
+             << " must use an odd number on this turn.\n";
         return false; // Number does not match the turn
     }
     if ((this->n_moves % 2 != 0 && symbol % 2 != 0)) {
         cout << "Invalid move: Player " << ((this->n_moves % 2 == 0) ? "1" : "2")
-                  << " must use an even number in this turn.\n";
+             << " must use an even number on this turn.\n";
         return false; // Number does not match the turn
     }
+
     // Check if the number has already been used
     if (used_numbers.count(symbol)) {
         cout << "Invalid move: The number " << symbol << " has already been used.\n";
         return false; // Number already used
     }
+
     // Update the board and record the move
     this->board[x][y] = symbol;
     this->n_moves++;
     used_numbers.insert(symbol);
+
     cout << "Move accepted: Player " << ((this->n_moves % 2 == 0) ? "2" : "1")
-              << " placed " << symbol << " at position (" << x << ", " << y << ").\n";
+         << " placed " << symbol << " at position (" << x << ", " << y << ").\n";
     return true;
 }
-
 
 template <typename T>
 void NumericalTicTacToeBoard<T>::display_board() {
