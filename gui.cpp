@@ -1,3 +1,4 @@
+#include "UltimateTicTacToe.h"
 #include "raylib.h"
 #include "rlgl.h"
 #include "TicTacToe4x4.h"
@@ -27,13 +28,13 @@ Screen screen = SCREEN_GAME_SELECTOR;
 
 
 // Draw circle outline (Vector version)
-void DrawCircleLinesEx(int centerX, int centerY, float radius, float thick, Color color, float endAngle = 360, float startAngle = 0)
+void DrawCircleLinesEx(int centerX, int centerY, float radius, float thick, Color color, float endAngle = 360, float startAngle = 0, Color back = RAYWHITE)
 {
     Vector2 center { (float)centerX, (float)centerY };
     for (float j = radius; j < radius + thick*2; j += 0.5) {
         DrawCircleSectorLines(center, j, startAngle, endAngle, 100, color);
     }
-    DrawCircleV(center, radius, RAYWHITE);
+    if (back.a) DrawCircleV(center, radius, back);
 }
 
 Vector2 MeasureTextSize(const char *text, int fontSize)
@@ -261,6 +262,7 @@ struct TicTacToe4x4AnimationData {
 
 TicTacToe4x4_Board<char>* ticTacToe4x4Board = nullptr;
 TicTacToe4x4AnimationData ticTacToe4x4BoardAngles[4][4] = {};
+UltimateTicTacToeBoard<char>* ultimateBoard = nullptr;
 bool gameOver = false;
 int gameOverTimer = 0;
 int currentPlayer = 1;
@@ -271,7 +273,15 @@ void SetScreen(Screen scr)
     SetMouseCursor(MOUSE_CURSOR_DEFAULT);
     if (screen == SCREEN_GAME_4X4) {
         currentPlayer = 1;
+        delete ticTacToe4x4Board;
         ticTacToe4x4Board = new TicTacToe4x4_Board<char>();
+        gameOver = false;
+        gameOverTimer = 0;
+    }
+    if (screen == SCREEN_GAME_ULTIMATE) {
+        currentPlayer = 1;
+        delete ultimateBoard;
+        ultimateBoard = new UltimateTicTacToeBoard<char>();
         gameOver = false;
         gameOverTimer = 0;
     }
@@ -298,7 +308,12 @@ void DrawGameSelector()
         if (!p2ok) inputPlayer2Name.ActivateAlert();
         if (p1ok && p2ok) SetScreen(SCREEN_GAME_4X4);
     }
-    if (buttonSelectGameUltimate.IsPressed()) {}
+    if (buttonSelectGameUltimate.IsPressed()) {
+        bool p1ok = inputPlayer1Name.GetLetterCount() > 0, p2ok = inputPlayer2Name.GetLetterCount() > 0;
+        if (!p1ok) inputPlayer1Name.ActivateAlert();
+        if (!p2ok) inputPlayer2Name.ActivateAlert();
+        if (p1ok && p2ok) SetScreen(SCREEN_GAME_ULTIMATE);
+    }
 }
 
 void DrawGame4x4()
@@ -408,7 +423,86 @@ void DrawGame4x4()
         oss << "Player " << currentPlayer << " Turn";
     }
     std::string text = oss.str();
-    DrawText(text.c_str(), screenWidth/2-MeasureText(text.c_str(), 80)/2, 40, 80, (gameOver * currentPlayer) ? RED : BLUE);
+    if (gameOver) DrawText(text.c_str(), screenWidth/2-MeasureText(text.c_str(), 80)/2, 40, 80, currentPlayer != 1 ? RED : BLUE);
+    else DrawText(text.c_str(), screenWidth/2-MeasureText(text.c_str(), 80)/2, 40, 80, currentPlayer == 1 ? RED : BLUE);
+}
+
+void DrawGameUltimate()
+{
+    const float width = 55;
+    const float inset = 15;
+    float dx = screenWidth/2.0f-width*4.5f;
+    float dy = screenHeight/2.0f-width*4.5f;
+    auto board = ultimateBoard->getboard();
+    if (gameOver) {
+        gameOverTimer += 1;
+    }
+    if (gameOverTimer > 340) {
+        SetScreen(SCREEN_GAME_SELECTOR);
+    }
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            bool selected = false;
+            int x = j*width+dx;
+            int y = i*width+dy;
+            int boardX = i / 3;
+            int boardY = j / 3;
+            DrawRectangle(x, y, width, width, RAYWHITE);
+            DrawRectangleLines(x, y, width, width, GRAY);
+            if (mousePosition.x > x
+                && mousePosition.x < x+width
+                && mousePosition.y > y
+                && mousePosition.y < y+width) {
+                selected = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+            }
+            switch (board[i][j]) {
+            case 'X':
+                DrawLineEx({x+inset,y+inset},{x+inset+(width-2*inset),y+inset+(width-2*inset)},5.0f,RED);
+                DrawLineEx({x+(width-inset),y+inset},{x+(width-inset)+(2*inset-width),y+inset+(width-2*inset)},5.0f,RED);
+                break;
+            case 'O':
+                DrawCircleLinesEx(x+width/2, y+width/2, 10.0f, 3.0f, BLUE);
+                break;
+            }
+            if (!gameOver && selected) {
+                char sym = currentPlayer == 1 ? 'X': 'O';
+                if (ultimateBoard->update_board(i, j, sym)) currentPlayer = currentPlayer == 1 ? 2 : 1;
+            }
+        }
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int x = 3*j*width+dx;
+            int y = 3*i*width+dy;
+            switch (ultimateBoard->sub_winners[i][j]) {
+            case 'X':
+                DrawLineEx({x+inset,y+inset},{x+inset+(3*width-2*inset),y+inset+(3*width-2*inset)},20.0f,RED);
+                DrawLineEx({x+(3*width-inset),y+inset},{x+(3*width-inset)+(2*inset-3*width),y+inset+(3*width-2*inset)},20.0f,RED);
+                break;
+            case 'O':
+                DrawCircleLinesEx(x+3*width/2, y+3*width/2, 45.0f, 10.0f, BLUE, 360, 0, {0,0,0,0});
+                break;
+            }
+        }
+    }
+    DrawLine(dx, 3*width+dy, 9*width+dx, 3*width+dy, BLACK);
+    DrawLine(dx, 6*width+dy, 9*width+dx, 6*width+dy, BLACK);
+    DrawLine(3*width+dx, dy, 3*width+dx, 9*width+dy, BLACK);
+    DrawLine(6*width+dx, dy, 6*width+dx, 9*width+dy, BLACK);
+    std::ostringstream oss;
+    if (ultimateBoard->game_is_over()) {
+        gameOver = true;
+        if (ultimateBoard->is_draw()) {
+            oss << "Draw!";
+        } if (ultimateBoard->is_win()) {
+            oss << "Player " << (currentPlayer == 1 ? 2 : 1) << " WINS!";
+        }
+    } else {
+        oss << "Player " << currentPlayer << " Turn";
+    }
+    std::string text = oss.str();
+    if (gameOver) DrawText(text.c_str(), screenWidth/2-MeasureText(text.c_str(), 80)/2, 20, 80, currentPlayer != 1 ? RED : BLUE);
+    else DrawText(text.c_str(), screenWidth/2-MeasureText(text.c_str(), 80)/2, 20, 80, currentPlayer == 1 ? RED : BLUE);
 }
 
 void UpdateDrawFrame()
@@ -427,7 +521,7 @@ void UpdateDrawFrame()
     } else if (screen == SCREEN_GAME_4X4) {
         DrawGame4x4();
     } else if (screen == SCREEN_GAME_ULTIMATE) {
-    
+        DrawGameUltimate();
     }
 
     EndDrawing();
@@ -435,8 +529,8 @@ void UpdateDrawFrame()
 
 int main()
 {
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
-    InitWindow(screenWidth, screenHeight, "faresbakhit/board-games");
+    SetConfigFlags(FLAG_WINDOW_MAXIMIZED | FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
+    InitWindow(100, 100, "faresbakhit/board-games");
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 0, 1);

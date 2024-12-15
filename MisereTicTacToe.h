@@ -24,10 +24,20 @@ public:
     void getmove(int& x, int& y);
 };
 
+template <typename T>
+class MisereTicTacToe_AIPlayer : public Player<T> {
+public:
+    MisereTicTacToe_AIPlayer(T symbol);
+    void getmove(int& x, int& y);
+private:
+    int calculateMinMax(T symbol, bool isMaximizing, int depth);
+    std::pair<int, int> getBestMove();
+};
+
 //--------------------------------------- IMPLEMENTATION
 
 #include <cctype> // for toupper()
-#include <iomanip>
+#include <limits>
 #include <iostream>
 
 using namespace std;
@@ -143,6 +153,96 @@ void MisereTicTacToe_Player<T>::getmove(int& x, int& y)
 {
     cout << "\nPlease enter your move x and y (0 to 2) separated by spaces: ";
     cin >> x >> y;
+}
+
+// Constructor for TicTacToe5x5_AiPlayer
+template <typename T>
+MisereTicTacToe_AIPlayer<T>::MisereTicTacToe_AIPlayer(T symbol)
+    : Player<T>(symbol)
+{
+    this->name = "AI Player";
+}
+
+template <typename T>
+void MisereTicTacToe_AIPlayer<T>::getmove(int& x, int& y)
+{
+    std::pair<int, int> bestMove = getBestMove();
+    x = bestMove.first;
+    y = bestMove.second;
+}
+
+template <typename T>
+int MisereTicTacToe_AIPlayer<T>::calculateMinMax(T symbol, bool isMaximizing, int depth)
+{
+    T opponentSymbol = (symbol == 'X') ? 'O' : 'X';
+    if (this->boardPtr->is_win()) {
+        return isMaximizing ? -10 + depth : 10 - depth; // Penalize winning for maximizing
+    } else if (this->boardPtr->is_draw()) {
+        return 0; // Neutral value for draw
+    }
+
+    int best = isMaximizing ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (this->boardPtr->update_board(i, j, symbol)) {
+                int value = calculateMinMax(opponentSymbol, !isMaximizing, depth + 1);
+                this->boardPtr->update_board(i, j, 0); // Undo move
+
+                if (isMaximizing) {
+                    best = std::max(best, value);
+                } else {
+                    best = std::min(best, value);
+                }
+            }
+        }
+    }
+    return best;
+}
+
+// Find the best move using the minimax algorithm
+template <typename T>
+std::pair<int, int> MisereTicTacToe_AIPlayer<T>::getBestMove()
+{
+    T opponentSymbol = (this->symbol == 'X') ? 'O' : 'X';
+
+    // Check for moves that block the opponent from winning
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (this->boardPtr->update_board(i, j, opponentSymbol)) {
+                if (this->boardPtr->is_win()) {
+                    this->boardPtr->update_board(i, j, 0); // Undo move
+                    return { i, j }; // Block opponent's winning move
+                }
+                this->boardPtr->update_board(i, j, 0); // Undo move
+            }
+        }
+    }
+
+    // Avoid moves that complete a line
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (this->boardPtr->update_board(i, j, this->symbol)) {
+                if (!this->boardPtr->is_win()) {
+                    this->boardPtr->update_board(i, j, 0); // Undo move
+                    return { i, j }; // Safe move
+                }
+                this->boardPtr->update_board(i, j, 0); // Undo move
+            }
+        }
+    }
+
+    // If no special conditions, pick the first empty cell
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if (this->boardPtr->update_board(i, j, this->symbol)) {
+                this->boardPtr->update_board(i, j, 0); // Undo move
+                return { i, j }; // Default move
+            }
+        }
+    }
+
+    // No valid moves found (shouldn't happen in a properly managed game)
+    return { -1, -1 };
 }
 
 #endif // MISERETICTACTOE_H

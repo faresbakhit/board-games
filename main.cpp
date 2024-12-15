@@ -5,6 +5,7 @@
 #include "FourInARow.h"
 #include "TicTacToe5x5.h"
 #include "NumericalTicTacToe.h"
+#include "UltimateTicTacToe.h"
 #include "XO.h"
 #include <iostream>
 
@@ -26,6 +27,7 @@ int main()
     cout << "5. Numerical Tic Tac Toe\n";
     cout << "6. Misere Tic Tac Toe\n";
     cout << "7. 4x4 Tic-Tac-Toe\n";
+    cout << "8. Ultimate Tic-Tac-Toe\n";
     cout << "Enter board game type: ";
     cin >> gameChoice;
 
@@ -50,6 +52,9 @@ int main()
         break;
     case 7:
         board = new TicTacToe4x4_Board<char>();
+        break;
+    case 8:
+        board = new UltimateTicTacToeBoard<char>();
         break;
     default:
         cout << "Invalid choice for board game type. Exiting the game.\n";
@@ -136,8 +141,13 @@ int main()
                 players[playerIndex] = new TicTacToe5x5_Player<char>(
                     playerName[playerIndex], playerSymbol[playerIndex]);
                 break;
+            case 3:
+                players[playerIndex]
+                    = new TicTacToe5x5_AIPlayer<char>(playerSymbol[playerIndex]);
+                players[playerIndex]->setBoard(board);
+                break;
             default:
-                cout << "Invalid choice for Player " << playerIndex
+                cout << "Invalid choice for Player " << playerIndex+1
                      << ". Exiting the game.\n";
                 return 1;
             }
@@ -165,6 +175,11 @@ int main()
                 players[playerIndex] = new MisereTicTacToe_Player<char>(
                     playerName[playerIndex], playerSymbol[playerIndex]);
                 break;
+            case 3:
+                players[playerIndex]
+                    = new MisereTicTacToe_AIPlayer<char>(playerSymbol[playerIndex]);
+                players[playerIndex]->setBoard(board);
+                break;
             default:
                 cout << "Invalid choice for Player " << playerIndex
                      << ". Exiting the game.\n";
@@ -175,6 +190,18 @@ int main()
             switch (playerType[playerIndex]) {
             case 1:
                 players[playerIndex] = new TicTacToe4x4_Player<char>(
+                    playerName[playerIndex], playerSymbol[playerIndex]);
+                break;
+            default:
+                cout << "Invalid choice for Player " << playerIndex
+                     << ". Exiting the game.\n";
+                return 1;
+            }
+            break;
+        case 8:
+            switch (playerType[playerIndex]) {
+            case 1:
+                players[playerIndex] = new UltimateTicTacToePlayer<char>(
                     playerName[playerIndex], playerSymbol[playerIndex]);
                 break;
             default:
@@ -196,15 +223,10 @@ int main()
     }
 
     // Cleanup
-    delete board;
-    delete numBoard;
-
+    if (gameChoice != 5) delete board;
+    else delete numBoard;
     for (int i = 0; i < 2; i++) {
-        if (gameChoice == 5) {
-            delete numPlayers[i];
-        } else {
-            delete players[i];
-        }
+        if (gameChoice != 5) delete players[i];
+        else delete numPlayers[i];
     }
-    return 0;
 }

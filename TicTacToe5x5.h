@@ -12,20 +12,33 @@ public:
     bool is_win();
     bool is_draw();
     bool game_is_over();
+    const T *const *const getboard() const {
+        return this->board;
+    };
 };
 
 template <typename T>
 class TicTacToe5x5_Player : public Player<T> {
 public:
     TicTacToe5x5_Player(string name, T symbol);
-    void getmove(int& x, int& y);
+    void getmove(int& x, int& y) override;
+};
+
+template<typename T>
+class TicTacToe5x5_AIPlayer : public Player<T> {
+public:
+    TicTacToe5x5_AIPlayer(T symbol);
+    void getmove(int& x, int& y) override;
+
+private:
+    std::pair<int, int> getBestMove();
 };
 
 //--------------------------------------- IMPLEMENTATION
 
 #include <cctype> // for toupper()
-#include <iomanip>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -215,6 +228,74 @@ void TicTacToe5x5_Player<T>::getmove(int& x, int& y)
 {
     cout << "\nEnter your move x and y (0 to 4) separated by spaces: ";
     cin >> x >> y;
+}
+
+// Constructor for TicTacToe5x5_AiPlayer
+template <typename T>
+TicTacToe5x5_AIPlayer<T>::TicTacToe5x5_AIPlayer(T symbol)
+    : Player<T>(symbol)
+{
+    this->name = "AI Player";
+}
+
+template <typename T>
+void TicTacToe5x5_AIPlayer<T>::getmove(int& x, int& y)
+{
+    std::pair<int, int> bestMove = getBestMove();
+    x = bestMove.first;
+    y = bestMove.second;
+}
+
+
+// Find the best move using the minimax algorithm
+template <typename T>
+std::pair<int, int> TicTacToe5x5_AIPlayer<T>::getBestMove()
+{
+    
+    T opponentSymbol = (this->symbol == 'X') ? 'O' : 'X';
+    auto board = dynamic_cast<TicTacToe5x5_Board<T>*>(this->boardPtr)->getboard();
+    std::pair<int, int> bestMove = { -1, -1 };
+    int bestMovePoints = -1;
+
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            int movePoints = 0;
+            if (board[i][j] != 0) continue;
+            // Horizontally
+            if (j <= 2 && board[i][j+1] == this->symbol && board[i][j+2] != opponentSymbol) movePoints += 1 + (board[i][j+2] == this->symbol);
+            if (j <= 2 && board[i][j+1] == opponentSymbol && board[i][j+2] != this->symbol) movePoints += 1 + (board[i][j+2] == opponentSymbol);
+            if (j >= 1 && j <= 3 && board[i][j-1] == this->symbol && board[i][j+1] != opponentSymbol) movePoints += 1 + (board[i][j+1] == this->symbol);
+            if (j >= 1 && j <= 3 && board[i][j-1] == opponentSymbol && board[i][j+1] != this->symbol) movePoints += 1 + (board[i][j+1] == opponentSymbol);
+            if (j >= 2 && board[i][j-1] == this->symbol && board[i][j-2] != opponentSymbol) movePoints += 1 + (board[i][j-2] == this->symbol);
+            if (j >= 2 && board[i][j-1] == opponentSymbol && board[i][j-2] != this->symbol) movePoints += 1 + (board[i][j-2] == opponentSymbol);
+            // Vertically
+            if (i <= 2 && board[i+1][j] == this->symbol && board[i+2][j] != opponentSymbol) movePoints += 1 + (board[i+2][j] == this->symbol);
+            if (i <= 2 && board[i+1][j] == opponentSymbol && board[i+2][j] != this->symbol) movePoints += 1 + (board[i+2][j] == opponentSymbol);
+            if (i >= 1 && i <= 3 && board[i-1][j] == this->symbol && board[i+1][j] != opponentSymbol) movePoints += 1 + (board[i+1][j] == this->symbol);
+            if (i >= 1 && i <= 3 && board[i-1][j] == opponentSymbol && board[i+1][j] != this->symbol) movePoints += 1 + (board[i+1][j] == opponentSymbol);
+            if (i >= 2 && board[i-1][j] == this->symbol && board[i-2][j] != opponentSymbol) movePoints += 1 + (board[i-2][j] == this->symbol);
+            if (i >= 2 && board[i-1][j] == opponentSymbol && board[i-2][j] != this->symbol) movePoints += 1 + (board[i-2][j] == opponentSymbol);
+            // Diagonally (Left)
+            if (i <= 2 && j >= 2 && board[i+1][j-1] == this->symbol && board[i+2][j-2] != opponentSymbol) movePoints += 1 + (board[i+2][j-2] == this->symbol);
+            if (i <= 2 && j >= 2 && board[i+1][j-1] == opponentSymbol && board[i+2][j-2] != this->symbol) movePoints += 1 + (board[i+2][j-2] == opponentSymbol);
+            if (i >= 1 && i <= 3 && j >= 1 && j <= 3 && board[i-1][j+1] == this->symbol && board[i+1][j-1] != opponentSymbol) movePoints += 1 + (board[i+1][j-1] == this->symbol);
+            if (i >= 1 && i <= 3 && j >= 1 && j <= 3 && board[i-1][j+1] == opponentSymbol && board[i+1][j-1] != this->symbol) movePoints += 1 + (board[i+1][j-1] == opponentSymbol);
+            if (i >= 2 && j <= 2 && board[i-1][j+1] == this->symbol && board[i-2][j+2] != opponentSymbol) movePoints += 1 + (board[i-2][j+2] == this->symbol);
+            if (i >= 2 && j <= 2 && board[i-1][j+1] == opponentSymbol && board[i-2][j+2] != this->symbol) movePoints += 1 + (board[i-2][j+2] == opponentSymbol);
+            // Diagonally (Right)
+            if (i <= 2 && j <= 2 && board[i+1][j+1] == this->symbol && board[i+2][j+2] != opponentSymbol) movePoints += 1 + (board[i+2][j+2] == this->symbol);
+            if (i <= 2 && j <= 2 && board[i+1][j+1] == opponentSymbol && board[i+2][j+2] != this->symbol) movePoints += 1 + (board[i+2][j+2] == opponentSymbol);
+            if (i >= 1 && i <= 3 && j >= 1 && j <= 3 && board[i-1][j-1] == this->symbol && board[i+1][j+1] != opponentSymbol) movePoints += 1 + (board[i+1][j+1] == this->symbol);
+            if (i >= 1 && i <= 3 && j >= 1 && j <= 3 && board[i-1][j-1] == opponentSymbol && board[i+1][j+1] != this->symbol) movePoints += 1 + (board[i+1][j+1] == opponentSymbol);
+            if (i >= 2 && j >= 2 && board[i-1][j-1] == this->symbol && board[i-2][j-2] != opponentSymbol) movePoints += 1 + (board[i-2][j-2] == this->symbol);
+            if (i >= 2 && j >= 2 && board[i-1][j-1] == opponentSymbol && board[i-2][j-2] != this->symbol) movePoints += 1 + (board[i-2][j-2] == opponentSymbol);
+            if (movePoints > bestMovePoints) {
+                bestMovePoints = movePoints;
+                bestMove = {i, j};
+            }
+        }
+    }
+    return bestMove;
 }
 
 #endif // TICTACTOE5X5_H

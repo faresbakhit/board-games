@@ -20,7 +20,9 @@ public:
     bool is_win();
     bool is_draw();
     bool game_is_over();
-private:
+    const T *const *const getboard() const {
+        return this->board;
+    };
     vector<vector<T>> sub_winners;
     bool check_sub_board_win(int subgrid_row, int subgrid_col, T symbol);
     bool check_main_board_win(T symbol);
@@ -115,11 +117,11 @@ bool UltimateTicTacToeBoard<T>::check_main_board_win(T symbol) {
 
 template<typename T>
 bool UltimateTicTacToeBoard<T>::update_board(int x, int y, T symbol) {
-    if (x >= 0 && x < this->rows && y >= 0 && y < this->columns && this->board[x][y] == 0) {
+    int subgrid_row = x / 3;
+    int subgrid_col = y / 3;
+    if (x >= 0 && x < this->rows && y >= 0 && y < this->columns && this->board[x][y] == 0 && sub_winners[subgrid_row][subgrid_col] == 0) {
         this->board[x][y] = symbol;
         this->n_moves++;
-        int subgrid_row = x / 3;
-        int subgrid_col = y / 3;
         if (sub_winners[subgrid_row][subgrid_col] == 0 && check_sub_board_win(subgrid_row, subgrid_col, symbol)) {
             sub_winners[subgrid_row][subgrid_col] = symbol;
         }
